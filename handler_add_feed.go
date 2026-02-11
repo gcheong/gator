@@ -36,5 +36,17 @@ func handlerAddFeed(s *state, cmd command) error {
 	}
 
 	fmt.Printf("Feed added successfully! %v\n", feed)
+
+	follow_cmd := command{
+		Name: "follow",
+		Args: []string{feedURL},
+	}
+
+	err = handlerFollow(s, follow_cmd)
+
+	if err != nil {
+		return fmt.Errorf("couldn't follow feed after adding: %w", err)
+	}
+
 	return nil
 }
