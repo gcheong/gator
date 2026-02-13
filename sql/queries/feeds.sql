@@ -16,9 +16,11 @@ SELECT f.name, f.url, u.name as created_by FROM feeds f JOIN users u ON f.user_i
 -- name: GetFeedByUrl :one
 SELECT * FROM feeds WHERE url = $1;
 
--- name: GetFeedFollowsByUserId :many
-SELECT ff.*, f.name as feed_name, u.name as user_name
-FROM feed_follows ff
-JOIN feeds f ON ff.feed_id = f.id
-JOIN users u ON ff.user_id = u.id
-WHERE ff.user_id = $1;
+-- name: MarkFeedFetched :exec
+UPDATE feeds SET updated_at = $1, last_fetched_at = $1 WHERE id = $2;
+
+-- name: GetNextFeedToFetch :one
+SELECT * FROM feeds WHERE user_id = $1 ORDER BY last_fetched_at ASC NULLS FIRST LIMIT 1;
+
+-- name: DeleteFeedByUrl :exec
+DELETE FROM feeds WHERE url = $1;
